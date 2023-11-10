@@ -54,9 +54,6 @@ class DisplayMapsActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.addMarker(MarkerOptions().position(latLng).title(place.title).snippet(place.desscription))
         }
         mMap.animateCamera((CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(),1000,1000,0)))
-//        // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
     }
 }

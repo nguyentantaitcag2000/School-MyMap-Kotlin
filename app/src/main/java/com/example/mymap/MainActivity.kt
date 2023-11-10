@@ -15,24 +15,35 @@ import com.example.mymap.databinding.ActivityMainBinding
 import com.example.mymap.models.Place
 import com.example.mymap.models.UserMap
 import com.example.mymap.models.Utils
-
+/**
+ * Đây là khai báo một hằng số TAG, được sử dụng để đánh dấu các thông báo ghi log (logcat) để theo dõi mã trong lớp MainActivity.
+ * */
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
+    /**  Đây là một biến để tham chiếu đến binding object được tạo từ layout XML (ActivityMainBinding). Đây là một cách để thao tác với các phần tử trên giao diện. */
     lateinit var binding: ActivityMainBinding
+    /** Đây là biến để lưu trữ danh sách các UserMap, được khai báo là một MutableList để có thể thay đổi danh sách. Biến này sẽ được sử dụng để hiển thị dữ liệu trên RecyclerView. */
     lateinit var userMaps: MutableList<UserMap>
+    /** Đây là biến để lưu trữ một đối tượng của lớp MapsAdapter, được sử dụng để quản lý danh sách các địa điểm và hiển thị chúng trên RecyclerView. */
     lateinit var mapAdapter: MapsAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Tạo binding object bằng cách inflate layout từ tệp XML activity_main.xml.
         binding = ActivityMainBinding.inflate(layoutInflater)
 
+        //Đặt nội dung giao diện chính
         setContentView(binding.root)
 
         userMaps = generateSimpleData().toMutableList()
 
         val userMaps = generateSimpleData()
+
+        // Đặt LayoutManager cho RecyclerView được tham chiếu từ binding.rvMaps. LinearLayoutManager được sử dụng để quản lý việc hiển thị danh sách theo chiều dọc.
         binding.rvMaps.layoutManager = LinearLayoutManager(this)
 
+        //Tạo một đối tượng mapAdapter và thiết lập Adapter cho RecyclerView.
         mapAdapter = MapsAdapter(this, userMaps, object: MapsAdapter.OnClickListener{
             override fun onItemClick(position: Int) {
                 Log.i(TAG, "onItemClick $position")
@@ -42,17 +53,8 @@ class MainActivity : AppCompatActivity() {
             }
         })
         binding.rvMaps.adapter = mapAdapter
-//        binding.rvMaps.adapter = MapsAdapter(this,
-//            userMaps,
-//            object: MapsAdapter.OnClickListener{
-//                override fun onItemClick(position: Int) {
-//                    Log.i(TAG, "onItemClick $position")
-//                    val intent = Intent(this@MainActivity, DisplayMapsActivity::class.java)
-//                    intent.putExtra(Utils.EXTRA_USER_MAP, userMaps[position])
-//                    startActivity(intent)
-//                }
-//            }
-//            )
+
+        // Xử lý sự kiện khi người dùng nhấn vào nút Floating Action Button (FAB). Khi người dùng nhấn vào nút này, một hộp thoại (dialog) xuất hiện để nhập tiêu đề cho bản đồ mới. Nếu tiêu đề không trống, nó tạo một hoạt động mới CreateMapActivity và chuyển tiêu đề của bản đồ đó tới hoạt động mới.
         binding.floatingActionButton.setOnClickListener{
 
             val mapFormvView = LayoutInflater.from(this).inflate(R.layout.dialog_create_map,null)
@@ -60,12 +62,13 @@ class MainActivity : AppCompatActivity() {
                 .setView(mapFormvView)
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("OK"){
-                    _,_ ->
+                    _,_ -> // là một lambda expression trong Kotlin. Lambda expressions cho phép định nghĩa một hàm không tên (anonymous function) một cách ngắn gọn. Trong trường hợp này, lambda expression được sử dụng để xử lý sự kiện khi người dùng nhấn nút "OK" trong hộp thoại (dialog).
+                    //{ _, _ -> ... } là cách để định nghĩa một lambda expression có hai tham số, nhưng tham số này không được sử dụng trong phần xử lý sự kiện. Dấu gạch dưới _ được sử dụng để chỉ ra rằng chúng ta không quan tâm đến giá trị của tham số này.
                     val _title =
                         mapFormvView.findViewById<EditText>(R.id.et_title_map).text.toString()
                     if(_title.trim().isEmpty()){
                         Toast.makeText(this, "Fill out title", Toast.LENGTH_SHORT).show()
-                        return@setPositiveButton
+                        return@setPositiveButton // được sử dụng để thoát khỏi lambda expression, nghĩa là nó sẽ kết thúc xử lý sự kiện khi tiêu đề trống và không tiếp tục thực hiện các công việc phía sau.
 
                     }
                     val intent = Intent(this@MainActivity, CreateMapActivity::class.java)
@@ -78,6 +81,7 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+    // Biến để xử lý kết quả từ hoạt động CreateMapActivity. Khi hoạt động này hoàn thành, nó trả về dữ liệu UserMap mới, và sau đó được thêm vào danh sách userMaps và cập nhật RecyclerView để hiển thị dữ liệu mới.
     private val getResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             if(it.resultCode == Activity.RESULT_OK)
